@@ -1,0 +1,2077 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Experlance CG | Web & Design Marketplace</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js" type="module"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js" type="module"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js" type="module"></script>
+    <style>
+        /* Base Styles */
+        .hidden {
+            display: none;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Animation Styles */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideInUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Logo Animation */
+        .logo-container {
+            transition: transform 0.3s ease;
+        }
+
+        .logo-container:hover {
+            transform: scale(1.05);
+        }
+
+        /* Navbar Animations */
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background-color: #10B981;
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .nav-link:hover::after {
+            width: 80%;
+        }
+
+        /* Button Animations */
+        .btn-animate {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-animate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-animate:active {
+            transform: translateY(0);
+        }
+
+        /* Mobile Menu Animation */
+        .mobile-menu {
+            transform: translateX(-100%);
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+
+        /* Page Transitions */
+        .page-section {
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        .page-section.active {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        /* Card Hover Effects */
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* User Menu Animations */
+        .user-menu-dropdown {
+            transform-origin: top right;
+            transform: scale(0.95);
+            opacity: 0;
+            transition: all 0.2s ease;
+            pointer-events: none;
+        }
+
+        .user-menu-dropdown.active {
+            transform: scale(1);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #10B981;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: -100%;
+            transition: right 0.5s ease;
+            z-index: 100; /* Ensure notification is on top */
+        }
+
+        .notification.show {
+            right: 20px;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            height: 4px;
+            background-color: #10B981;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Skill Badge */
+        .skill-badge {
+            transition: all 0.2s ease;
+        }
+
+        .skill-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Rating Stars */
+        .star-rating .star {
+            color: #E5E7EB;
+        }
+
+        .star-rating .star.active {
+            color: #F59E0B;
+        }
+
+        /* Project Card */
+        .project-card {
+            transition: all 0.3s ease;
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Freelancer Card */
+        .freelancer-card:hover .freelancer-image {
+            transform: scale(1.05);
+        }
+
+        .freelancer-image {
+            transition: transform 0.3s ease;
+        }
+
+        /* Form Input */
+        .form-input:focus {
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="app" class="min-h-screen flex flex-col">
+        <!-- Notification -->
+        <div id="notification" class="notification hidden bg-white p-4 rounded-lg shadow-lg z-50 max-w-sm">
+            <div class="flex items-start">
+                <div id="notificationIcon" class="mr-3 mt-1"></div>
+                <div class="flex-1">
+                    <h3 id="notificationTitle" class="font-medium"></h3>
+                    <p id="notificationMessage" class="text-sm text-gray-600"></p>
+                </div>
+                <button id="closeNotification" class="text-gray-400 hover:text-gray-500">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="progress-bar mt-2"></div>
+        </div>
+
+        <!-- Mobile Menu Overlay -->
+        <div id="mobileMenuOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden transition-opacity duration-300"></div>
+
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="mobile-menu fixed top-0 left-0 h-full w-72 bg-white shadow-lg z-50 p-6">
+            <div class="flex justify-between items-center mb-8">
+                <div class="flex items-center">
+                    <div class="h-10 w-10 bg-gradient-to-r from-green-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold mr-2">EC</div>
+                    <span class="text-xl font-bold text-green-600">Experlance CG</span>
+                </div>
+                <button id="closeMobileMenu" class="text-gray-500 hover:text-gray-700 transition-colors duration-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <nav class="flex flex-col space-y-4">
+                <a href="#homePage" class="nav-link text-gray-700 hover:text-green-600 px-3 py-2 border-b border-gray-100 transition-all duration-300">Home</a>
+                <a href="#projectsPage" class="nav-link text-gray-700 hover:text-green-600 px-3 py-2 border-b border-gray-100 transition-all duration-300">Projects</a>
+                <a href="#freelancersPage" class="nav-link text-gray-700 hover:text-green-600 px-3 py-2 border-b border-gray-100 transition-all duration-300">Top Freelancers</a>
+                <a href="#browseFreelancersPage" class="nav-link text-gray-700 hover:text-green-600 px-3 py-2 border-b border-gray-100 transition-all duration-300">Freelancers</a>
+                <a href="#postProjectPage" class="nav-link text-gray-700 hover:text-green-600 px-3 py-2 border-b border-gray-100 transition-all duration-300">Post a Project</a>
+            </nav>
+
+            <!-- Mobile Auth Buttons -->
+            <div class="mt-8" id="mobileAuthButtons">
+                <button class="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 mb-3 btn-animate" id="mobileLoginBtn">Log In</button>
+                <button class="w-full bg-white text-green-600 border border-green-600 px-4 py-2 rounded hover:bg-green-50 btn-animate" id="mobileSignupBtn">Sign Up</button>
+            </div>
+
+            <!-- Mobile User Menu (initially hidden) -->
+            <div class="mt-8 hidden" id="mobileUserMenu">
+                <div class="bg-green-50 p-3 rounded-lg mb-4">
+                    <div class="font-medium text-green-800" id="mobileUsernameDisplay"></div>
+                    <div class="text-sm text-green-600" id="mobileUserRole"></div>
+                </div>
+                <a href="#profilePage" class="block py-2 px-3 text-gray-700 hover:bg-green-50 hover:text-green-600 rounded transition-colors duration-300 mb-2">My Profile</a>
+                <a href="#dashboard" class="block py-2 px-3 text-gray-700 hover:bg-green-50 hover:text-green-600 rounded transition-colors duration-300 mb-2">Dashboard</a>
+                <button class="w-full bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 btn-animate" id="mobileLogoutBtn">Log Out</button>
+            </div>
+        </div>
+
+        <nav class="bg-white shadow-lg sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="flex justify-between items-center h-16">
+                    <div class="flex items-center logo-container">
+                        <div class="h-10 w-10 bg-gradient-to-r from-green-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold mr-2">EC</div>
+                        <span class="text-xl font-bold text-green-600">Experlance CG</span>
+                    </div>
+                    <div class="hidden md:flex items-center space-x-6">
+                        <a href="#homePage" class="nav-link text-gray-700 hover:text-green-600 px-3 py-2" id="navHome">Home</a>
+                        <a href="#projectsPage" class="nav-link text-gray-700 hover:text-green-600 px-3 py-2" id="navProjects">Projects</a>
+                        <a href="#freelancersPage" class="nav-link text-gray-700 hover:text-green-600 px-3 py-2" id="navFreelancers">Top Freelancers</a>
+                        <a href="#browseFreelancersPage" class="nav-link text-gray-700 hover:text-green-600 px-3 py-2" id="navBrowseFreelancers">Freelancers</a>
+                        <a href="#postProjectPage" class="nav-link text-gray-700 hover:text-green-600 px-3 py-2" id="navPostProject">Post a Project</a>
+                    </div>
+
+                    <!-- Desktop Auth Buttons -->
+                    <div class="flex items-center space-x-4" id="authButtons">
+                        <button class="text-gray-700 hover:text-green-600 px-3 py-2 hidden md:block btn-animate" id="loginBtn">Log In</button>
+                        <button class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 hidden md:block btn-animate" id="signupBtn">Sign Up</button>
+                        <button class="md:hidden text-gray-700 hover:text-green-600 transition-colors duration-300" id="mobileMenuButton">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Desktop User Menu (initially hidden) -->
+                    <div class="hidden md:flex items-center relative" id="userMenu">
+                        <div class="flex items-center cursor-pointer group" id="userMenuTrigger">
+                            <div class="bg-green-100 rounded-full h-8 w-8 flex items-center justify-center mr-2 text-green-600 font-semibold" id="userInitial"></div>
+                            <span id="usernameDisplay" class="text-gray-700 mr-2"></span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 group-hover:text-green-600 transition-colors duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+
+                        <!-- User Dropdown -->
+                        <div class="user-menu-dropdown absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-lg p-3 z-50" id="userMenuDropdown">
+                            <div class="border-b border-gray-100 pb-2 mb-2">
+                                <div class="font-medium" id="dropdownUsername"></div>
+                                <div class="text-sm text-gray-500" id="dropdownUserRole"></div>
+                            </div>
+                            <a href="#profilePage" class="block py-2 px-3 text-gray-700 hover:bg-green-50 hover:text-green-600 rounded transition-colors duration-300">My Profile</a>
+                            <a href="#dashboard" class="block py-2 px-3 text-gray-700 hover:bg-green-50 hover:text-green-600 rounded transition-colors duration-300">Dashboard</a>
+                            <button class="w-full text-left py-2 px-3 text-red-600 hover:bg-red-50 rounded mt-2 transition-colors duration-300" id="logoutBtn">Log Out</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <main class="flex-grow container mx-auto px-4 py-8">
+            <!-- Loading Spinner -->
+            <div id="loadingSpinner" class="fixed inset-0 bg-white bg-opacity-80 flex items-center justify-center z-50 hidden">
+                <div class="spinner"></div>
+            </div>
+
+            <div id="homePage" class="page-section active">
+                <section class="py-12 bg-gradient-to-r from-green-500 to-blue-600 rounded-lg text-white text-center">
+                    <h1 class="text-4xl md:text-5xl font-bold mb-6">Find the Perfect Freelance Services</h1>
+                    <p class="text-xl mb-8">Web Development • Graphic Design • Digital Marketing • Content Writing</p>
+                    <div class="flex flex-col md:flex-row justify-center gap-4">
+                        <button class="bg-white text-green-600 font-bold py-3 px-6 rounded-lg hover:bg-gray-100 transition duration-300 btn-animate" id="hireFreelancerBtn">
+                            Hire a Freelancer
+                        </button>
+                        <button class="bg-green-700 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-800 transition duration-300 btn-animate" id="findWorkBtn">
+                            Find Work
+                        </button>
+                    </div>
+                </section>
+
+                <section class="my-12">
+                    <h2 class="text-3xl font-bold text-center mb-8">How It Works</h2>
+                    <div class="grid md:grid-cols-3 gap-8">
+                        <div class="bg-white p-6 rounded-lg shadow card-hover">
+                            <div class="text-green-500 text-4xl font-bold mb-4">1</div>
+                            <h3 class="text-xl font-semibold mb-2">Post a Project</h3>
+                            <p class="text-gray-600">Describe your project and set your budget to attract qualified freelancers.</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow card-hover">
+                            <div class="text-green-500 text-4xl font-bold mb-4">2</div>
+                            <h3 class="text-xl font-semibold mb-2">Review Proposals</h3>
+                            <p class="text-gray-600">Compare bids, portfolios, and reviews to find the perfect match.</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow card-hover">
+                            <div class="text-green-500 text-4xl font-bold mb-4">3</div>
+                            <h3 class="text-xl font-semibold mb-2">Get It Done</h3>
+                            <p class="text-gray-600">Use our platform to collaborate and pay securely upon completion.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="my-12">
+                    <h2 class="text-3xl font-bold text-center mb-8">Popular Categories</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="bg-white p-4 rounded-lg shadow text-center card-hover">
+                            <i class="fas fa-code text-3xl text-green-500 mb-2"></i>
+                            <h3 class="font-semibold">Web Development</h3>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow text-center card-hover">
+                            <i class="fas fa-paint-brush text-3xl text-green-500 mb-2"></i>
+                            <h3 class="font-semibold">Graphic Design</h3>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow text-center card-hover">
+                            <i class="fas fa-mobile-alt text-3xl text-green-500 mb-2"></i>
+                            <h3 class="font-semibold">UI-UX Designs</h3>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow text-center card-hover">
+                            <i class="fas fa-search-dollar text-3xl text-green-500 mb-2"></i>
+                            <h3 class="font-semibold">Digital Marketing</h3>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div id="projectsPage" class="page-section hidden">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-3xl font-bold">Available Projects</h2>
+                    <div class="relative">
+                        <select id="projectFilter" class="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <option value="all">All Projects</option>
+                            <option value="web">Web Development</option>
+                            <option value="design">Design</option>
+                            <option value="marketing">Marketing</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                            <i class="fas fa-chevron-down text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" id="projectsList">
+                    <!-- Projects will be loaded here from Firestore -->
+                </div>
+                <div class="mt-8 text-center">
+                    <button id="loadMoreProjects" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition duration-300 btn-animate">
+                        Load More Projects
+                    </button>
+                </div>
+            </div>
+
+            <!-- Top Freelancers Section -->
+            <div id="freelancersPage" class="page-section hidden">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-3xl font-bold">Top Freelancers</h2>
+                    <div class="relative">
+                        <select id="freelancerFilter" class="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <option value="all">All Freelancers</option>
+                            <option value="web">Web Developers</option>
+                            <option value="design">Designers</option>
+                            <option value="marketing">Marketers</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                            <i class="fas fa-chevron-down text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6" id="freelancersList">
+                    <!-- Top Freelancers (Sample/Admin Curated) will be loaded here -->
+                </div>
+                <div class="mt-8 text-center">
+                    <button id="loadMoreFreelancers" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition duration-300 btn-animate">
+                        Load More Top Freelancers
+                    </button>
+                </div>
+            </div>
+
+            <!-- Browse All Freelancers Section -->
+            <div id="browseFreelancersPage" class="page-section hidden mt-12 pt-8 border-t border-gray-200">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-3xl font-bold">Freelancers</h2>
+                    <div class="relative">
+                        <select id="browseFreelancerFilter" class="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <option value="all">All Skills</option>
+                            <option value="web">Web Developers</option>
+                            <option value="design">Designers</option>
+                            <option value="marketing">Marketers</option>
+                            <!-- Add more filters as needed -->
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                            <i class="fas fa-chevron-down text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6" id="browseFreelancersList">
+                    <!-- All Public Freelancers (from Firestore) will be loaded here -->
+                </div>
+                <div class="mt-8 text-center">
+                    <button id="loadMoreBrowseFreelancers" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition duration-300 btn-animate">
+                        Load More Freelancers
+                    </button>
+                </div>
+            </div>
+
+
+            <div id="postProjectPage" class="page-section hidden max-w-2xl mx-auto">
+                <h2 class="text-3xl font-bold mb-8">Post a Project</h2>
+                <form id="projectForm" class="bg-white p-6 rounded-lg shadow">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2" for="projectTitle">Project Title</label>
+                        <input type="text" id="projectTitle" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 form-input" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2" for="projectDescription">Description</label>
+                        <textarea id="projectDescription" rows="5" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 form-input" required></textarea>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2" for="projectBudget">Budget (₹)</label>
+                        <input type="number" id="projectBudget" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 form-input" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2" for="projectSkills">Skills Required</label>
+                        <input type="text" id="projectSkills" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 form-input" placeholder="HTML, CSS, JavaScript, etc.">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2" for="projectCategory">Category</label>
+                        <select id="projectCategory" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 form-input">
+                            <option value="web">Web Development</option>
+                            <option value="design">Design</option>
+                            <option value="mobile">UI-UX Design</option>
+                            <option value="marketing">Marketing</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-gray-700 mb-2" for="projectDeadline">Deadline (Optional)</label>
+                        <input type="date" id="projectDeadline" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 form-input">
+                    </div>
+                    <button type="submit" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition duration-300 w-full btn-animate">
+                        <span id="submitButtonText">Post Project</span>
+                        <span id="submitButtonSpinner" class="hidden ml-2">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- How to Hire Section -->
+            <section id="howToHire" class="py-12 page-section hidden">
+                <div class="max-w-4xl mx-auto">
+                    <h2 class="text-3xl font-bold mb-8 text-center">How to Hire on Experlance CG</h2>
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="mb-8">
+                            <h3 class="text-xl font-semibold mb-4 text-green-600">1. Post Your Project</h3>
+                            <p class="text-gray-700 mb-4">Start by creating a clear project description. Be specific about your requirements, timeline, and budget. The more details you provide, the better proposals you'll receive.</p>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <p class="text-sm text-gray-600"><strong>Tip:</strong> Include examples of similar projects you like to help freelancers understand your vision.</p>
+                            </div>
+                        </div>
+
+                        <div class="mb-8">
+                            <h3 class="text-xl font-semibold mb-4 text-green-600">2. Review Proposals</h3>
+                            <p class="text-gray-700 mb-4">Freelancers will submit proposals with their approach, timeline, and cost. Review their profiles, portfolios, and client feedback to assess their suitability.</p>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <p class="text-sm text-gray-600"><strong>Tip:</strong> Look for freelancers who ask thoughtful questions about your project - it shows they're engaged.</p>
+                            </div>
+                        </div>
+
+                        <div class="mb-8">
+                            <h3 class="text-xl font-semibold mb-4 text-green-600">3. Interview Candidates</h3>
+                            <p class="text-gray-700 mb-4">Use our messaging system to interview top candidates. Discuss project details, timelines, and any questions you may have before making a decision.</p>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <p class="text-sm text-gray-600"><strong>Tip:</strong> Ask for references or examples of similar work they've completed.</p>
+                            </div>
+                        </div>
+
+                        <div class="mb-8">
+                            <h3 class="text-xl font-semibold mb-4 text-green-600">4. Award the Project</h3>
+                            <p class="text-gray-700 mb-4">Once you've selected a freelancer, award them the project. You'll agree on milestones and payment terms before work begins.</p>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <p class="text-sm text-gray-600"><strong>Tip:</strong> Start with a small milestone to test the working relationship.</p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-xl font-semibold mb-4 text-green-600">5. Manage & Pay</h3>
+                            <p class="text-gray-700 mb-4">Use our platform to communicate, share files, and track progress. Payments are held securely until you approve completed work.</p>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <p class="text-sm text-gray-600"><strong>Tip:</strong> Provide clear feedback throughout the project to ensure the final deliverable meets your expectations.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pricing Section -->
+            <section id="pricing" class="py-12 page-section hidden">
+                <div class="max-w-5xl mx-auto">
+                    <h2 class="text-3xl font-bold mb-8 text-center">Simple, Transparent Pricing</h2>
+                    <p class="text-gray-600 text-center max-w-2xl mx-auto mb-12">Choose the plan that fits your needs. No hidden fees, cancel anytime.</p>
+
+                    <div class="grid md:grid-cols-3 gap-8">
+                        <div class="bg-white p-6 rounded-lg shadow card-hover transform hover:scale-105 transition-transform duration-300">
+                            <h3 class="text-xl font-semibold mb-4 text-green-600">Basic</h3>
+                            <p class="text-4xl font-bold mb-4">Free</p>
+                            <p class="text-gray-600 mb-6">Perfect for small projects and occasional hiring</p>
+                            <ul class="space-y-3 text-gray-700 mb-8">
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-green-500 mr-2 mt-1"></i>
+                                    <span>Post 1 active project</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-green-500 mr-2 mt-1"></i>
+                                    <span>Receive up to 5 proposals</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-green-500 mr-2 mt-1"></i>
+                                    <span>Basic support</span>
+                                </li>
+                                <li class="flex items-start text-gray-400">
+                                    <i class="fas fa-times text-gray-400 mr-2 mt-1"></i>
+                                    <span>No featured listings</span>
+                                </li>
+                            </ul>
+                            <button class="w-full bg-green-600 text-white px-4 py-3 rounded-lg hover:bg-green-700 transition duration-300 btn-animate">Get Started</button>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-lg shadow-lg border-2 border-green-500 card-hover transform hover:scale-105 transition-transform duration-300 relative">
+                            <div class="absolute top-0 right-0 bg-green-500 text-white px-3 py-1 rounded-bl-lg rounded-tr-lg text-sm font-medium">Most Popular</div>
+                            <h3 class="text-xl font-semibold mb-4 text-green-600">Professional</h3>
+                            <p class="text-4xl font-bold mb-4">₹999<span class="text-lg font-normal">/month</span></p>
+                            <p class="text-gray-600 mb-6">Ideal for growing businesses with regular hiring needs</p>
+                            <ul class="space-y-3 text-gray-700 mb-8">
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-green-500 mr-2 mt-1"></i>
+                                    <span>Post 5 active projects</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-green-500 mr-2 mt-1"></i>
+                                    <span>Unlimited proposals</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-green-500 mr-2 mt-1"></i>
+                                    <span>Priority support</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-green-500 mr-2 mt-1"></i>
+                                    <span>Featured listings</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-green-500 mr-2 mt-1"></i>
+                                    <span>Advanced analytics</span>
+                                </li>
+                            </ul>
+                            <button class="w-full bg-green-600 text-white px-4 py-3 rounded-lg hover:bg-green-700 transition duration-300 btn-animate">Get Professional</button>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-lg shadow card-hover transform hover:scale-105 transition-transform duration-300">
+                            <h3 class="text-xl font-semibold mb-4 text-green-600">Enterprise</h3>
+                            <p class="text-4xl font-bold mb-4">Custom</p>
+                            <p class="text-gray-600 mb-6">For companies with high-volume hiring needs</p>
+                            <ul class="space-y-3 text-gray-700 mb-8">
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-green-500 mr-2 mt-1"></i>
+                                    <span>Unlimited active projects</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-green-500 mr-2 mt-1"></i>
+                                    <span>Dedicated account manager</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-green-500 mr-2 mt-1"></i>
+                                    <span>24/7 premium support</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-green-500 mr-2 mt-1"></i>
+                                    <span>Custom integrations</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-green-500 mr-2 mt-1"></i>
+                                    <span>Team collaboration tools</span>
+                                </li>
+                            </ul>
+                            <button class="w-full bg-green-600 text-white px-4 py-3 rounded-lg hover:bg-green-700 transition duration-300 btn-animate">Contact Sales</button>
+                        </div>
+                    </div>
+
+                    <div class="mt-12 bg-white p-6 rounded-lg shadow">
+                        <h3 class="text-xl font-semibold mb-4 text-center">Frequently Asked Questions</h3>
+                        <div class="space-y-4">
+                            <div class="border-b border-gray-200 pb-4">
+                                <button class="flex justify-between items-center w-full text-left focus:outline-none" onclick="toggleFAQ(1)">
+                                    <span class="font-medium text-gray-800">What payment methods do you accept?</span>
+                                    <i class="fas fa-chevron-down text-gray-500 transition-transform duration-300" id="faqIcon1"></i>
+                                </button>
+                                <div class="mt-2 text-gray-600 hidden" id="faqContent1">
+                                    We accept all major credit cards (Visa, Mastercard, American Express), PayPal, and bank transfers for payments. All transactions are processed securely through our payment gateway.
+                                </div>
+                            </div>
+                            <div class="border-b border-gray-200 pb-4">
+                                <button class="flex justify-between items-center w-full text-left focus:outline-none" onclick="toggleFAQ(2)">
+                                    <span class="font-medium text-gray-800">Can I cancel my subscription anytime?</span>
+                                    <i class="fas fa-chevron-down text-gray-500 transition-transform duration-300" id="faqIcon2"></i>
+                                </button>
+                                <div class="mt-2 text-gray-600 hidden" id="faqContent2">
+                                    Yes, you can cancel your subscription at any time. There are no cancellation fees, and you'll continue to have access to the paid features until the end of your current billing period.
+                                </div>
+                            </div>
+                            <div class="border-b border-gray-200 pb-4">
+                                <button class="flex justify-between items-center w-full text-left focus:outline-none" onclick="toggleFAQ(3)">
+                                    <span class="font-medium text-gray-800">Is there a fee for freelancers?</span>
+                                    <i class="fas fa-chevron-down text-gray-500 transition-transform duration-300" id="faqIcon3"></i>
+                                </button>
+                                <div class="mt-2 text-gray-600 hidden" id="faqContent3">
+                                    Freelancers pay a service fee of 10% on each project they complete through our platform. This helps us maintain and improve our services for both clients and freelancers.
+                                </div>
+                            </div>
+                            <div>
+                                <button class="flex justify-between items-center w-full text-left focus:outline-none" onclick="toggleFAQ(4)">
+                                    <span class="font-medium text-gray-800">How does the payment protection work?</span>
+                                    <i class="fas fa-chevron-down text-gray-500 transition-transform duration-300" id="faqIcon4"></i>
+                                </button>
+                                <div class="mt-2 text-gray-600 hidden" id="faqContent4">
+                                    We hold client payments in escrow until the work is completed and approved. This ensures freelancers get paid for their work and clients only pay for satisfactory results. In case of disputes, our support team will mediate to find a fair resolution.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Success Stories Section -->
+            <section id="successStories" class="py-12 page-section hidden">
+                <div class="max-w-4xl mx-auto">
+                    <h2 class="text-3xl font-bold mb-8 text-center">Success Stories</h2>
+                    <p class="text-gray-600 text-center max-w-2xl mx-auto mb-12">See how businesses and freelancers are thriving on Experlance CG</p>
+
+                    <div class="grid md:grid-cols-2 gap-8 mb-12">
+                        <div class="bg-white p-6 rounded-lg shadow card-hover">
+                            <div class="flex items-center mb-4">
+                                <div class="w-12 h-12 rounded-full bg-gradient-to-r from-green-500 to-blue-600 flex items-center justify-center text-white font-bold mr-4">VS</div>
+                                <div>
+                                    <h4 class="font-semibold">Vishnu </h4>
+                                    <p class="text-gray-600">Founder, AppTrack</p>
+                                </div>
+                            </div>
+                            <div class="star-rating mb-4 flex">
+                                <i class="fas fa-star active"></i>
+                                <i class="fas fa-star active"></i>
+                                <i class="fas fa-star active"></i>
+                                <i class="fas fa-star active"></i>
+                                <i class="fas fa-star active"></i>
+                            </div>
+                            <p class="text-gray-700 mb-4">"We found an amazing developer who built our e-commerce platform in just 3 weeks. The quality was outstanding and the communication was excellent throughout the project."</p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded skill-badge">Web Development</span>
+                                <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded skill-badge">E-commerce</span>
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow card-hover">
+                            <div class="flex items-center mb-4">
+                                <div class="w-12 h-12 rounded-full bg-gradient-to-r from-green-500 to-blue-600 flex items-center justify-center text-white font-bold mr-4">MD</div>
+                                <div>
+                                    <h4 class="font-semibold">Madhavan </h4>
+                                    <p class="text-gray-600">CEO, Experlance CG</p>
+                                </div>
+                            </div>
+                            <div class="star-rating mb-4 flex">
+                                <i class="fas fa-star active"></i>
+                                <i class="fas fa-star active"></i>
+                                <i class="fas fa-star active"></i>
+                                <i class="fas fa-star active"></i>
+                                <i class="fas fa-star active"></i>
+                            </div>
+                            <p class="text-gray-700 mb-4">"The graphic designers on Experlance CG transformed our brand identity. We received dozens of creative proposals and were able to find the perfect match for our vision."</p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded skill-badge">Graphic Design</span>
+                                <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded skill-badge">Branding</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- About Us Section -->
+            <section id="aboutUs" class="py-12 page-section hidden">
+                <div class="max-w-4xl mx-auto">
+                    <h2 class="text-3xl font-bold mb-8 text-center">About Experlance CG</h2>
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="flex flex-col md:flex-row gap-8 mb-8">
+                            <div class="md:w-1/2">
+                                <h3 class="text-xl font-semibold mb-4 text-green-600">Our Mission</h3>
+                                <p class="text-gray-700 mb-4">Experlance CG was founded with a simple mission: to connect businesses with top freelance talent in a seamless, secure environment.</p>
+                                <p class="text-gray-700">We believe in the power of flexible work arrangements to create opportunities for both businesses and skilled professionals.</p>
+                            </div>
+                            <div class="md:w-1/2">
+                                <h3 class="text-xl font-semibold mb-4 text-green-600">Our Story</h3>
+                                <p class="text-gray-700 mb-4">Founded in 2025 by a team of freelancers and entrepreneurs who saw the need for a better way to connect talent with opportunity.</p>
+                                <p class="text-gray-700">Our platform has grown to serve thousands of clients and freelancers across India and beyond, facilitating successful collaborations in web development, design, marketing, and more.</p>
+                            </div>
+                        </div>
+
+                        <div class="mb-8">
+                            <h3 class="text-xl font-semibold mb-4 text-green-600">Our Values</h3>
+                            <div class="grid md:grid-cols-3 gap-4">
+                                <div class="bg-green-50 p-4 rounded-lg">
+                                    <h4 class="font-semibold mb-2 text-green-700">Quality</h4>
+                                    <p class="text-gray-700 text-sm">We maintain high standards for both clients and freelancers to ensure successful collaborations.</p>
+                                </div>
+                                <div class="bg-green-50 p-4 rounded-lg">
+                                    <h4 class="font-semibold mb-2 text-green-700">Transparency</h4>
+                                    <p class="text-gray-700 text-sm">Clear pricing, honest reviews, and open communication are at the heart of everything we do.</p>
+                                </div>
+                                <div class="bg-green-50 p-4 rounded-lg">
+                                    <h4 class="font-semibold mb-2 text-green-700">Community</h4>
+                                    <p class="text-gray-700 text-sm">We foster a supportive environment where professionals can grow their careers and businesses.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-xl font-semibold mb-4 text-green-600">Our Team</h3>
+                            <div class="grid md:grid-cols-4 gap-4">
+                                <div class="text-center">
+                                    <div class="w-16 h-16 rounded-full bg-gradient-to-r from-green-500 to-blue-600 flex items-center justify-center text-white font-bold mx-auto mb-2">MD</div>
+                                    <h4 class="font-medium">Vishnu</h4>
+                                    <p class="text-gray-600 text-sm">CEO & Founder</p>
+                                </div>
+                                <div class="text-center">
+                                    <div class="w-16 h-16 rounded-full bg-gradient-to-r from-green-500 to-blue-600 flex items-center justify-center text-white font-bold mx-auto mb-2">VS</div>
+                                    <h4 class="font-medium">Madhavan</h4>
+                                    <p class="text-gray-600 text-sm">CTO</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Contact Section -->
+            <section id="contact" class="py-12 page-section hidden">
+                <div class="max-w-4xl mx-auto">
+                    <h2 class="text-3xl font-bold mb-8 text-center">Contact Us</h2>
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="flex flex-col md:flex-row gap-8 mb-8">
+                            <div class="md:w-1/2">
+                                <h3 class="text-xl font-semibold mb-4 text-green-600">Get in Touch</h3>
+                                <p class="text-gray-700 mb-6">Have questions or need assistance? Our team is here to help you with any inquiries about our platform or services.</p>
+
+                                <div class="space-y-4">
+                                    <div class="flex items-start">
+                                        <div class="bg-green-100 p-2 rounded-full mr-3">
+                                            <i class="fas fa-envelope text-green-600"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-medium">Email Us</h4>
+                                            <p class="text-gray-600">experlancecg@gmail.com</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start">
+                                        <div class="bg-green-100 p-2 rounded-full mr-3">
+                                            <i class="fas fa-phone-alt text-green-600"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-medium">Call Us</h4>
+                                            <p class="text-gray-600">+91 7904207175</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start">
+                                    </div>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-semibold mb-4 text-green-600">Follow Us And Join Our Community</h3>
+                                    <div class="flex space-x-4">
+                                        <a href="https://chat.whatsapp.com/KythTGwj1BcC8Pamzo7hei" class="bg-gray-100 p-3 rounded-full hover:bg-green-100 transition-colors duration-300">
+                                            <i class="fab fa-whatsapp text-gray-700"></i>
+                                        </a>
+                                        <a href="https://www.linkedin.com/in/vishnu2304" class="bg-gray-100 p-3 rounded-full hover:bg-green-100 transition-colors duration-300">
+                                            <i class="fab fa-linkedin-in text-gray-700"></i>
+                                        </a>
+                                        <a href="https://github.com/iamvishnu2304" class="bg-gray-100 p-3 rounded-full hover:bg-green-100 transition-colors duration-300">
+                                            <i class="fab fa-github text-gray-700"></i>
+                                        </a>
+                                        <a href="https://www.instagram.com/i_am_vishnu_..?igsh=MTBucmduaW9rejJiaA==&utm_source=ig_contact_invite" class="bg-gray-100 p-3 rounded-full hover:bg-green-100 transition-colors duration-300">
+                                            <i class="fab fa-instagram text-gray-700"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="md:w-1/2">
+                                <form class="space-y-4">
+                                    <div>
+                                        <label class="block text-gray-700 mb-2" for="name">Name</label>
+                                        <input type="text" id="name" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 form-input">
+                                    </div>
+                                    <div>
+                                        <label class="block text-gray-700 mb-2" for="email">Email</label>
+                                        <input type="email" id="email" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 form-input">
+                                    </div>
+                                    <div>
+                                        <label class="block text-gray-700 mb-2" for="subject">Subject</label>
+                                        <input type="text" id="subject" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 form-input">
+                                    </div>
+                                    <div>
+                                        <label class="block text-gray-700 mb-2" for="message">Message</label>
+                                        <textarea id="message" rows="4" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 form-input"></textarea>
+                                    </div>
+                                    <button type="submit" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition duration-300 w-full btn-animate">Send Message</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Profile Page Section -->
+            <section id="profilePage" class="page-section hidden max-w-2xl mx-auto">
+                <h2 class="text-3xl font-bold mb-8">My Profile</h2>
+                <div id="profileLoading" class="text-center py-12">
+                    <div class="spinner mx-auto"></div>
+                    <p class="mt-4 text-gray-600">Loading Profile...</p>
+                </div>
+                <form id="profileForm" class="bg-white p-6 rounded-lg shadow hidden">
+                    <!-- Display Email (Read-only) -->
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-1 text-sm" for="profileEmail">Email</label>
+                        <input type="email" id="profileEmail" class="w-full px-3 py-2 border rounded-lg bg-gray-100 cursor-not-allowed" readonly>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2" for="profileName">Full Name</label>
+                        <input type="text" id="profileName" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 form-input" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2" for="profileEducation">Education</label>
+                        <input type="text" id="profileEducation" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 form-input" placeholder="e.g., B.Tech in Computer Science">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2" for="profileSkills">Skills</label>
+                        <input type="text" id="profileSkills" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 form-input" placeholder="Comma-separated, e.g., HTML, CSS, React, Node.js">
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-gray-700 mb-2" for="profileDescription">Description / Bio</label>
+                        <textarea id="profileDescription" rows="4" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 form-input" placeholder="Tell clients a bit about yourself and your expertise"></textarea>
+                    </div>
+                    <!-- Make Profile Public Checkbox (for freelancers) -->
+                    <div class="mb-6 hidden" id="makePublicContainer">
+                        <label class="flex items-center">
+                            <input type="checkbox" id="profileIsPublic" class="form-checkbox h-4 w-4 text-green-600">
+                            <span class="ml-2 text-gray-700">Make my profile public in the Freelancers section</span>
+                        </label>
+                    </div>
+                    <button type="submit" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition duration-300 w-full btn-animate">
+                        <span id="saveProfileButtonText">Save Profile</span>
+                        <span id="saveProfileButtonSpinner" class="hidden ml-2">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </span>
+                    </button>
+                </form>
+            </section>
+            <!-- End Profile Page Section -->
+
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="page-section hidden max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold mb-8">Dashboard</h2>
+                <div id="dashboardLoading" class="text-center py-12">
+                    <div class="spinner mx-auto"></div>
+                    <p class="mt-4 text-gray-600">Loading Dashboard...</p>
+                </div>
+
+                <div id="dashboardContent" class="hidden">
+                    <!-- Client Dashboard View -->
+                    <div id="clientDashboard" class="hidden">
+                        <h3 class="text-2xl font-semibold mb-6 text-green-700">Client Dashboard</h3>
+                        <div class="mb-8">
+                            <h4 class="text-xl font-semibold mb-4">My Posted Projects</h4>
+                            <div id="clientPostedProjects" class="space-y-4">
+                                <!-- Client's projects will be loaded here -->
+                                <p class="text-gray-500">You haven't posted any projects yet.</p>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="text-xl font-semibold mb-4">Proposals Received</h4>
+                            <div id="clientProposalsReceived" class="space-y-4">
+                                <!-- Proposals for client's projects will be loaded here -->
+                                <p class="text-gray-500">No proposals received yet.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Freelancer Dashboard View -->
+                    <div id="freelancerDashboard" class="hidden">
+                        <h3 class="text-2xl font-semibold mb-6 text-green-700">Freelancer Dashboard</h3>
+                        <div class="mb-8">
+                            <h4 class="text-xl font-semibold mb-4">My Submitted Proposals</h4>
+                            <div id="freelancerSubmittedProposals" class="space-y-4">
+                                <!-- Freelancer's submitted proposals will be loaded here -->
+                                <p class="text-gray-500">You haven't submitted any proposals yet.</p>
+                            </div>
+                        </div>
+                        <div class="mb-8">
+                            <h4 class="text-xl font-semibold mb-4">My Awarded Projects</h4>
+                            <div id="freelancerAwardedProjects" class="space-y-4">
+                                <!-- Projects awarded to the freelancer will be loaded here -->
+                                <p class="text-gray-500">You haven't been awarded any projects yet.</p>
+                            </div>
+                        </div>
+                         <!-- Placeholder for Earnings & Messages -->
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="bg-white p-4 rounded-lg shadow">
+                                <h4 class="text-lg font-semibold mb-2">Earnings (Placeholder)</h4>
+                                <p class="text-gray-600">Total Earned: ₹0.00</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg shadow">
+                                <h4 class="text-lg font-semibold mb-2">Messages (Placeholder)</h4>
+                                <p class="text-gray-600">You have 0 unread messages.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- View Freelancer Modal -->
+            <div id="viewFreelancerModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50 p-4">
+                <div class="bg-white p-6 md:p-8 rounded-lg max-w-2xl w-full mx-4 relative max-h-[90vh] overflow-y-auto">
+                    <button id="closeViewFreelancerModal" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl">
+                        &times;
+                    </button>
+                    <div id="viewFreelancerContent">
+                        <!-- Loading State -->
+                        <div id="viewFreelancerLoading" class="text-center py-12">
+                            <div class="spinner mx-auto"></div>
+                            <p class="mt-4 text-gray-600">Loading Freelancer Profile...</p>
+                        </div>
+                        <!-- Profile Details (Populated by JS) -->
+                        <div id="viewFreelancerDetails" class="hidden">
+                            <div class="flex flex-col sm:flex-row items-center mb-6">
+                                <div id="viewFreelancerInitial" class="w-20 h-20 bg-gradient-to-r from-green-500 to-blue-600 rounded-full flex items-center justify-center text-white text-3xl font-bold mb-4 sm:mb-0 sm:mr-6 flex-shrink-0"></div>
+                                <div class="text-center sm:text-left">
+                                    <h2 id="viewFreelancerName" class="text-2xl font-bold mb-1"></h2>
+                                    <p id="viewFreelancerEmail" class="text-gray-600 text-sm mb-2"></p>
+                                    <!-- Add Rating Here if available -->
+                                </div>
+                            </div>
+                            <div class="space-y-4">
+                                <div id="viewFreelancerEducationSection"></div>
+                                <div id="viewFreelancerSkillsSection"></div>
+                                <div id="viewFreelancerDescriptionSection"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View Project Modal -->
+            <div id="viewProjectModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50 p-4">
+                <div class="bg-white p-6 md:p-8 rounded-lg max-w-2xl w-full mx-4 relative max-h-[90vh] overflow-y-auto">
+                    <button id="closeViewProjectModal" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl">
+                        &times;
+                    </button>
+                    <div id="viewProjectContent">
+                        <!-- Loading State -->
+                        <div id="viewProjectLoading" class="text-center py-12">
+                            <div class="spinner mx-auto"></div>
+                            <p class="mt-4 text-gray-600">Loading Project Details...</p>
+                        </div>
+                        <!-- Project Details (Populated by JS) -->
+                        <div id="viewProjectDetails" class="hidden">
+                            <h2 id="viewProjectTitle" class="text-2xl md:text-3xl font-bold mb-3"></h2>
+                            <div class="flex justify-between items-center text-sm text-gray-500 mb-4">
+                                <span id="viewProjectClient"></span>
+                                <span id="viewProjectDate"></span>
+                            </div>
+                            <div class="mb-4">
+                                <h4 class="font-semibold text-gray-800">Budget</h4>
+                                <p id="viewProjectBudget" class="text-green-600 font-bold text-lg"></p>
+                            </div>
+                            <div class="mb-4">
+                                <h4 class="font-semibold text-gray-800">Description</h4>
+                                <p id="viewProjectDescription" class="text-gray-700 whitespace-pre-wrap"></p>
+                            </div>
+                            <div class="mb-4">
+                                <h4 class="font-semibold text-gray-800">Skills Required</h4>
+                                <div id="viewProjectSkills" class="flex flex-wrap gap-2 mt-1"></div>
+                            </div>
+                            <div id="viewProjectCategorySection" class="mb-4"></div>
+                            <div id="viewProjectDeadlineSection" class="mb-4"></div>
+
+                            <button id="submitProposalBtn" class="hidden mt-6 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 w-full btn-animate">
+                                Submit Proposal
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Proposal Modal -->
+            <div id="submitProposalModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50 p-4">
+                <div class="bg-white p-6 md:p-8 rounded-lg max-w-lg w-full mx-4 relative max-h-[90vh] overflow-y-auto">
+                    <button id="closeSubmitProposalModal" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl">
+                        &times;
+                    </button>
+                    <h2 class="text-2xl font-bold mb-6">Submit Your Proposal</h2>
+                    <form id="proposalForm">
+                        <input type="hidden" id="proposalProjectId">
+                        <div class="mb-4">
+                            <label class="block text-gray-700 mb-2" for="proposalCoverLetter">Cover Letter / Proposal Details</label>
+                            <textarea id="proposalCoverLetter" rows="6" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 form-input" required placeholder="Explain why you are a good fit for this project..."></textarea>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-gray-700 mb-2" for="proposalBidAmount">Your Bid Amount (₹)</label>
+                            <input type="number" id="proposalBidAmount" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 form-input" required placeholder="e.g., 15000">
+                        </div>
+                        <div class="mb-6">
+                            <label class="block text-gray-700 mb-2" for="proposalDeliveryTime">Estimated Delivery Time (e.g., 2 weeks, 1 month)</label>
+                            <input type="text" id="proposalDeliveryTime" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 form-input" required placeholder="e.g., 3 weeks">
+                        </div>
+                        <button type="submit" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition duration-300 w-full btn-animate">
+                            <span id="submitProposalFormBtnText">Submit Proposal</span>
+                            <span id="submitProposalFormSpinner" class="hidden ml-2"><i class="fas fa-spinner fa-spin"></i></span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+
+            <!-- Login Modal -->
+            <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+                <div class="bg-white p-8 rounded-lg max-w-md w-full mx-4">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold">Log In</h2>
+                        <button id="closeLoginModal" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <form id="loginForm">
+                        <div class="mb-4">
+                            <label class="block text-gray-700 mb-2" for="loginEmail">Email</label>
+                            <input type="email" id="loginEmail" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 form-input" required>
+                        </div>
+                        <div class="mb-6">
+                            <label class="block text-gray-700 mb-2" for="loginPassword">Password</label>
+                            <input type="password" id="loginPassword" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 form-input" required>
+                        </div>
+                        <div class="flex items-center justify-between mb-6">
+                            <label class="flex items-center">
+                                <input type="checkbox" class="form-checkbox h-4 w-4 text-green-600">
+                                <span class="ml-2 text-gray-700">Remember me</span>
+                            </label>
+                            <a href="#" class="text-green-600 hover:underline">Forgot password?</a>
+                        </div>
+                        <button type="submit" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition duration-300 w-full btn-animate mb-4">
+                            <span id="loginButtonText">Log In</span>
+                            <span id="loginButtonSpinner" class="hidden ml-2">
+                                <i class="fas fa-spinner fa-spin"></i>
+                            </span>
+                        </button>
+                        <p class="text-center text-gray-600">Don't have an account? <a href="#" class="text-green-600 hover:underline" id="showSignup">Sign up</a></p>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Signup Modal -->
+            <div id="signupModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+                <div class="bg-white p-8 rounded-lg max-w-md w-full mx-4">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold">Sign Up</h2>
+                        <button id="closeSignupModal" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <form id="signupForm">
+                        <div class="mb-4">
+                            <label class="block text-gray-700 mb-2" for="signupName">Full Name</label>
+                            <input type="text" id="signupName" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 form-input" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-gray-700 mb-2" for="signupEmail">Email</label>
+                            <input type="email" id="signupEmail" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 form-input" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-gray-700 mb-2" for="signupPassword">Password</label>
+                            <input type="password" id="signupPassword" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 form-input" required>
+                        </div>
+                        <div class="mb-6">
+                            <label class="flex items-center">
+                                <input type="checkbox" id="isFreelancer" class="form-checkbox h-4 w-4 text-green-600">
+                                <span class="ml-2 text-gray-700">I'm a freelancer looking for work</span>
+                            </label>
+                        </div>
+                        <button type="submit" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition duration-300 w-full btn-animate mb-4">
+                            <span id="signupButtonText">Sign Up</span>
+                            <span id="signupButtonSpinner" class="hidden ml-2">
+                                <i class="fas fa-spinner fa-spin"></i>
+                            </span>
+                        </button>
+                        <p class="text-center text-gray-600">Already have an account? <a href="#" class="text-green-600 hover:underline" id="showLogin">Log in</a></p>
+                    </form>
+                </div>
+            </div>
+        </main>
+
+        <footer class="bg-gray-800 text-white py-8 mt-12">
+            <div class="container mx-auto px-4">
+                <div class="flex flex-col md:flex-row justify-between">
+                    <div class="mb-6 md:mb-0">
+                        <div class="flex items-center mb-4">
+                            <div class="h-8 w-8 bg-gradient-to-r from-green-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold mr-2">EC</div>
+                            <span class="text-xl font-bold">Experlance CG</span>
+                        </div>
+                        <p class="text-gray-400 max-w-md">Connecting talented freelancers with amazing clients to create exceptional projects together.</p>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-8">
+                        <div>
+                            <h3 class="text-lg font-semibold mb-4">For Clients</h3>
+                            <ul class="space-y-2">
+                                <li><a href="#howToHire" class="text-gray-400 hover:text-green-400 transition-colors duration-300">How to Hire</a></li>
+                                <li><a href="#pricing" class="text-gray-400 hover:text-green-400 transition-colors duration-300">Pricing</a></li>
+                                <li><a href="#Enterprise" class="text-gray-400 hover:text-green-400 transition-colors duration-300">Enterprise</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold mb-4">For Freelancers</h3>
+                            <ul class="space-y-2">
+                                <li><a href="#how to find work" class="text-gray-400 hover:text-green-400 transition-colors duration-300">How to Find Work</a></li>
+                                <li><a href="#successStories" class="text-gray-400 hover:text-green-400 transition-colors duration-300">Success Stories</a></li>
+                                <li><a href="#fees" class="text-gray-400 hover:text-green-400 transition-colors duration-300">Fees</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold mb-4">Company</h3>
+                            <ul class="space-y-2">
+                                <li><a href="#aboutUs" class="text-gray-400 hover:text-green-400 transition-colors duration-300">About Us</a></li>
+                                <li><a href="#contact" class="text-gray-400 hover:text-green-400 transition-colors duration-300">Contact</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="border-t border-gray-700 mt-8 pt-6 text-center text-gray-400">
+                    <p>&copy; 2025 Experlance CG. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+        import {
+          getAuth,
+          createUserWithEmailAndPassword,
+          signInWithEmailAndPassword,
+          signOut,
+          onAuthStateChanged,
+          updateProfile
+        } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
+        import {
+          getFirestore, doc, setDoc, getDoc, serverTimestamp, collection, addDoc, query, where, getDocs, limit, startAfter, orderBy, Timestamp
+        } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+        // Your web app's Firebase configuration
+        // IMPORTANT: Replace with your actual Firebase project configuration!
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY", // <--- REPLACE THIS
+            authDomain: "YOUR_AUTH_DOMAIN", // <--- REPLACE THIS
+            projectId: "YOUR_PROJECT_ID", // <--- REPLACE THIS
+            storageBucket: "YOUR_STORAGE_BUCKET", // <--- REPLACE THIS
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID", // <--- REPLACE THIS
+            appId: "YOUR_APP_ID", // <--- REPLACE THIS
+            measurementId: "YOUR_MEASUREMENT_ID" // Optional, <--- REPLACE THIS IF YOU HAVE IT
+        };
+
+        // Initialize Firebase
+        let app;
+        let auth;
+        let db;
+        try {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+            console.log("Firebase App Initialized Successfully.");
+        } catch (error) {
+            console.error("Firebase initialization error:", error);
+            alert("Could not initialize Firebase. Please check your configuration and ensure you have an internet connection. Some features may not work.");
+            // You might want to display a more user-friendly message on the page itself
+        }
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements
+            const mobileMenuButton = document.getElementById('mobileMenuButton');
+            const mobileMenu = document.getElementById('mobileMenu');
+            const closeMobileMenu = document.getElementById('closeMobileMenu');
+            const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+
+            const navLinks = document.querySelectorAll('a[href^="#"]');
+            const pages = document.querySelectorAll('.page-section');
+
+            const loginBtn = document.getElementById('loginBtn');
+            const signupBtn = document.getElementById('signupBtn');
+            const mobileLoginBtn = document.getElementById('mobileLoginBtn');
+            const mobileSignupBtn = document.getElementById('mobileSignupBtn');
+
+            const authButtons = document.getElementById('authButtons');
+            const userMenu = document.getElementById('userMenu');
+            const mobileAuthButtons = document.getElementById('mobileAuthButtons');
+            const mobileUserMenu = document.getElementById('mobileUserMenu');
+
+            const logoutBtn = document.getElementById('logoutBtn');
+            const mobileLogoutBtn = document.getElementById('mobileLogoutBtn');
+
+            const userMenuTrigger = document.getElementById('userMenuTrigger');
+            const userMenuDropdown = document.getElementById('userMenuDropdown');
+
+            const hireFreelancerBtn = document.getElementById('hireFreelancerBtn');
+            const findWorkBtn = document.getElementById('findWorkBtn');
+
+            const loginModal = document.getElementById('loginModal');
+            const signupModal = document.getElementById('signupModal');
+            const closeLoginModal = document.getElementById('closeLoginModal');
+            const closeSignupModal = document.getElementById('closeSignupModal');
+            const showSignup = document.getElementById('showSignup');
+            const showLogin = document.getElementById('showLogin');
+
+            const notification = document.getElementById('notification');
+            const closeNotification = document.getElementById('closeNotification');
+            const progressBar = document.querySelector('.progress-bar');
+
+            const loadingSpinner = document.getElementById('loadingSpinner');
+
+            // Profile Page Elements
+            const profileForm = document.getElementById('profileForm');
+            const profileLoading = document.getElementById('profileLoading');
+            const makePublicContainer = document.getElementById('makePublicContainer'); // Added for profile form
+
+            // Freelancer View Modal Elements
+            const viewFreelancerModal = document.getElementById('viewFreelancerModal');
+            const closeViewFreelancerModal = document.getElementById('closeViewFreelancerModal');
+
+            // Project View Modal Elements
+            const viewProjectModal = document.getElementById('viewProjectModal');
+            const closeViewProjectModal = document.getElementById('closeViewProjectModal');
+            const submitProposalBtn = document.getElementById('submitProposalBtn');
+
+            // Submit Proposal Modal Elements
+            const submitProposalModal = document.getElementById('submitProposalModal');
+            const closeSubmitProposalModal = document.getElementById('closeSubmitProposalModal');
+            const proposalForm = document.getElementById('proposalForm');
+
+            // Dashboard Elements
+            const dashboardLoading = document.getElementById('dashboardLoading');
+            const dashboardContent = document.getElementById('dashboardContent');
+            const clientDashboard = document.getElementById('clientDashboard');
+            const freelancerDashboard = document.getElementById('freelancerDashboard');
+
+
+            const sampleTopFreelancers = [ // This is for the "Top Freelancers" section, admin curated
+                { id: 'sample101', name: 'Vishnu (Sample)', skills: 'Web Developer / UI-UX Designer', rating: 4.9, bio: 'Full-stack developer with extensive experience in modern web technologies.', category: 'web', projects: 5, email: 'vishnu.sample@example.com', education: 'B.Tech Computer Science' },
+                { id: 'sample102', name: 'Madhavan (Sample)', skills: 'UI/UX Designer', rating: 4.8, bio: 'Creative designer passionate about crafting intuitive user experiences.', category: 'design', projects: 10, email: 'madhavan.sample@example.com', education: 'M.Sc Interaction Design' },
+            ];
+
+            // --- Core Functions ---
+            function toggleMobileMenu() {
+                mobileMenu.classList.toggle('open');
+                mobileMenuOverlay.classList.toggle('hidden');
+                document.body.classList.toggle('overflow-hidden');
+            }
+
+            async function showPage(pageId) {
+                loadingSpinner.classList.remove('hidden');
+                pages.forEach(page => {
+                    page.classList.add('hidden');
+                    page.classList.remove('active');
+                });
+                hideViewFreelancerModal();
+                hideViewProjectModal();
+                hideSubmitProposalModal();
+
+                setTimeout(async () => {
+                    const targetPage = document.getElementById(pageId);
+                    if (targetPage) {
+                        targetPage.classList.remove('hidden');
+                        targetPage.classList.add('active');
+                        window.location.hash = pageId;
+                        updateActiveNavLink(pageId);
+                        document.querySelector('main').scrollTop = 0;
+
+                        // Conditional data loading based on page
+                        if (pageId === 'freelancersPage') populateTopFreelancers();
+                        else if (pageId === 'browseFreelancersPage') await populateBrowseFreelancers();
+                        else if (pageId === 'projectsPage') await populateProjects();
+                        else if (pageId === 'profilePage' && auth && auth.currentUser) await loadProfileData();
+                        else if (pageId === 'dashboard' && auth && auth.currentUser) await loadDashboardData();
+
+                    } else {
+                        const home = document.getElementById('homePage');
+                        home.classList.remove('hidden');
+                        home.classList.add('active');
+                        window.location.hash = 'homePage';
+                        updateActiveNavLink('homePage');
+                    }
+                    loadingSpinner.classList.add('hidden');
+                }, 300);
+            }
+
+            function updateActiveNavLink(pageId) {
+                navLinks.forEach(link => {
+                    if (link.getAttribute('href') === '#' + pageId) {
+                        link.classList.add('text-green-600', 'font-medium');
+                    } else {
+                        link.classList.remove('text-green-600', 'font-medium');
+                    }
+                });
+            }
+
+            async function populateProjects(filter = 'all') {
+                const projectsListEl = document.getElementById('projectsList');
+                if (!projectsListEl) return;
+                projectsListEl.innerHTML = '<div class="col-span-full text-center py-12"><div class="spinner mx-auto"></div><p class="mt-2">Loading projects...</p></div>';
+
+                if (!db) {
+                     projectsListEl.innerHTML = `<div class="col-span-full text-center py-12 text-red-500"><i class="fas fa-exclamation-triangle text-4xl mb-4"></i><h3 class="text-xl font-medium">Database not available</h3></div>`;
+                     return;
+                }
+
+                try {
+                    let projectsQuery = query(collection(db, "projects"), orderBy("postedAt", "desc"));
+                    if (filter !== 'all') {
+                        projectsQuery = query(projectsQuery, where("category", "==", filter));
+                    }
+
+                    const querySnapshot = await getDocs(projectsQuery);
+                    if (querySnapshot.empty) {
+                        projectsListEl.innerHTML = `<div class="col-span-full text-center py-12"><i class="fas fa-folder-open text-4xl text-gray-300 mb-4"></i><h3 class="text-xl font-medium text-gray-600">No projects found</h3><p class="text-gray-500 mt-2">Try adjusting your filters or post a new project!</p></div>`;
+                        return;
+                    }
+
+                    projectsListEl.innerHTML = '';
+                    querySnapshot.forEach(doc => {
+                        const project = { id: doc.id, ...doc.data() };
+                        const projectCard = document.createElement('div');
+                        projectCard.className = 'bg-white p-6 rounded-lg shadow project-card';
+                        const postedDate = project.postedAt && project.postedAt.toDate ? project.postedAt.toDate().toLocaleDateString() : 'N/A';
+                        projectCard.innerHTML = `
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="text-xl font-semibold">${project.title}</h3>
+                                <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">₹${project.budget ? project.budget.toLocaleString() : 'N/A'}</span>
+                            </div>
+                            <p class="text-gray-600 mb-4 line-clamp-2">${project.description}</p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                ${project.skills && Array.isArray(project.skills) ? project.skills.map(skill => `<span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded skill-badge">${skill}</span>`).join('') : 'No skills listed'}
+                            </div>
+                            <div class="flex justify-between items-center text-sm text-gray-500">
+                                <span>Posted: ${postedDate}</span>
+                                <span>Proposals: ${project.proposalsCount || 0}</span>
+                            </div>
+                            <button data-projectid="${project.id}" class="view-project-btn mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 w-full btn-animate">View Project</button>
+                        `;
+                        projectsListEl.appendChild(projectCard);
+                    });
+                } catch (error) {
+                    console.error("Error fetching projects:", error);
+                    projectsListEl.innerHTML = `<div class="col-span-full text-center py-12 text-red-500"><i class="fas fa-exclamation-triangle text-4xl mb-4"></i><h3 class="text-xl font-medium">Failed to load projects</h3><p class="text-sm">${error.message}</p></div>`;
+                    showNotification('error', 'Error', 'Could not load projects.');
+                }
+            }
+
+
+            function populateTopFreelancers(filter = 'all') {
+                const freelancersList = document.getElementById('freelancersList');
+                 if (!freelancersList) return;
+                freelancersList.innerHTML = '';
+                const filteredFreelancers = filter === 'all' ? sampleTopFreelancers : sampleTopFreelancers.filter(f => f.category === filter);
+                if (filteredFreelancers.length === 0) {
+                    freelancersList.innerHTML = `<div class="col-span-full text-center py-12"><i class="fas fa-user-slash text-4xl text-gray-300 mb-4"></i><h3 class="text-xl font-medium text-gray-600">No top freelancers found</h3></div>`;
+                    return;
+                }
+                filteredFreelancers.forEach(freelancer => {
+                    const nameWords = freelancer.name.split(' ');
+                    const initials = nameWords.map(word => word[0]).join('').toUpperCase();
+                    const freelancerCard = document.createElement('div');
+                    freelancerCard.className = 'bg-white p-6 rounded-lg shadow text-center freelancer-card';
+                    freelancerCard.innerHTML = `
+                        <div class="w-16 h-16 bg-gradient-to-r from-green-500 to-blue-600 rounded-full flex items-center justify-center text-white text-xl font-bold mx-auto mb-4 freelancer-image">${initials}</div>
+                        <h3 class="text-lg font-semibold mb-1">${freelancer.name}</h3>
+                        <p class="text-gray-600 mb-2 text-sm">${freelancer.skills}</p>
+                        <div class="flex items-center justify-center text-yellow-400 mb-2">
+                            ${Array(5).fill('').map((_, i) => `<i class="fas fa-star ${i < Math.floor(freelancer.rating) ? 'active' : ''}"></i>`).join('')}
+                            <span class="text-gray-700 ml-1 text-sm">${freelancer.rating}</span>
+                        </div>
+                        <p class="text-gray-700 mb-4 text-sm line-clamp-2">${freelancer.bio}</p>
+                        <button data-userid="${freelancer.id}" class="view-profile-btn bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 w-full btn-animate text-sm">View Profile</button>
+                    `;
+                    freelancersList.appendChild(freelancerCard);
+                });
+            }
+
+            async function populateBrowseFreelancers(filter = 'all', loadMore = false) {
+                const freelancersListEl = document.getElementById('browseFreelancersList');
+                if (!freelancersListEl) return;
+
+                if (!loadMore) {
+                    freelancersListEl.innerHTML = '<div class="col-span-full text-center py-12"><div class="spinner mx-auto"></div><p class="mt-2">Loading freelancers...</p></div>';
+                }
+                if (!db) {
+                     freelancersListEl.innerHTML = `<div class="col-span-full text-center py-12 text-red-500"><i class="fas fa-exclamation-triangle text-4xl mb-4"></i><h3 class="text-xl font-medium">Database not available</h3></div>`;
+                     return;
+                }
+
+                try {
+                    let q = query(collection(db, "users"), where("isFreelancer", "==", true), where("isPublic", "==", true));
+
+                    const querySnapshot = await getDocs(q);
+
+                    if (querySnapshot.empty && !loadMore) {
+                        freelancersListEl.innerHTML = `<div class="col-span-full text-center py-12"><i class="fas fa-user-slash text-4xl text-gray-300 mb-4"></i><h3 class="text-xl font-medium text-gray-600">No public freelancers found</h3></div>`;
+                        return;
+                    }
+                    if (!loadMore) freelancersListEl.innerHTML = '';
+
+                    querySnapshot.forEach((docSnap) => {
+                        const freelancer = { id: docSnap.id, ...docSnap.data() };
+                        const nameWords = freelancer.name ? freelancer.name.split(' ') : ['?'];
+                        const initials = nameWords.map(word => word[0]).join('').toUpperCase();
+
+                        const skillsArray = (freelancer.skills && Array.isArray(freelancer.skills)) ? freelancer.skills : [];
+                        const skillsDisplay = skillsArray.length > 0
+                            ? skillsArray.slice(0, 3).join(', ') + (skillsArray.length > 3 ? '...' : '')
+                            : 'No skills listed';
+
+                        const freelancerCard = document.createElement('div');
+                        freelancerCard.className = 'bg-white p-6 rounded-lg shadow text-center freelancer-card';
+                        freelancerCard.innerHTML = `
+                            <div class="w-16 h-16 bg-gradient-to-r from-green-500 to-blue-600 rounded-full flex items-center justify-center text-white text-xl font-bold mx-auto mb-4 freelancer-image">${initials}</div>
+                            <h3 class="text-lg font-semibold mb-1">${freelancer.name || 'Unnamed Freelancer'}</h3>
+                            <p class="text-gray-600 mb-2 text-sm">${skillsDisplay}</p>
+                            <p class="text-gray-700 mb-4 text-sm line-clamp-2">${freelancer.description || 'No description provided.'}</p>
+                            <button data-userid="${freelancer.id}" class="view-profile-btn bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 w-full btn-animate text-sm">View Profile</button>
+                        `;
+                        freelancersListEl.appendChild(freelancerCard);
+                    });
+
+                } catch (error) {
+                    console.error("Error fetching freelancers:", error);
+                    if (!loadMore) freelancersListEl.innerHTML = `<div class="col-span-full text-center py-12 text-red-500"><i class="fas fa-exclamation-triangle text-4xl mb-4"></i><h3 class="text-xl font-medium">Failed to load freelancers</h3><p class="text-sm">${error.message}</p></div>`;
+                    showNotification('error', 'Error', 'Could not load freelancers.');
+                }
+            }
+
+
+            function showNotification(type, title, message, duration = 5000) {
+                const iconMap = {
+                    success: '<i class="fas fa-check-circle text-green-500 text-xl"></i>',
+                    error: '<i class="fas fa-times-circle text-red-500 text-xl"></i>',
+                    info: '<i class="fas fa-info-circle text-blue-500 text-xl"></i>'
+                };
+                document.getElementById('notificationIcon').innerHTML = iconMap[type] || iconMap.info;
+                document.getElementById('notificationTitle').textContent = title;
+                document.getElementById('notificationMessage').textContent = message;
+                notification.classList.remove('hidden');
+                setTimeout(() => notification.classList.add('show'), 10);
+                progressBar.style.width = '100%';
+                progressBar.style.transition = `width ${duration}ms linear`;
+                setTimeout(hideNotification, duration);
+            }
+
+            function hideNotification() {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    notification.classList.add('hidden');
+                    progressBar.style.width = '0%';
+                    progressBar.style.transition = 'width 0s';
+                }, 500);
+            }
+
+            function showLoginModal() { loginModal.classList.remove('hidden'); signupModal.classList.add('hidden'); document.body.classList.add('overflow-hidden'); }
+            function showSignupModal() { signupModal.classList.remove('hidden'); loginModal.classList.add('hidden'); document.body.classList.add('overflow-hidden'); }
+            function hideAuthModals() { loginModal.classList.add('hidden'); signupModal.classList.add('hidden'); document.body.classList.remove('overflow-hidden'); }
+
+            function showViewFreelancerModal() {
+                viewFreelancerModal.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
+                document.getElementById('viewFreelancerLoading').classList.remove('hidden');
+                document.getElementById('viewFreelancerDetails').classList.add('hidden');
+            }
+            function hideViewFreelancerModal() { viewFreelancerModal.classList.add('hidden'); document.body.classList.remove('overflow-hidden'); }
+
+            function showViewProjectModal() {
+                viewProjectModal.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
+                document.getElementById('viewProjectLoading').classList.remove('hidden');
+                document.getElementById('viewProjectDetails').classList.add('hidden');
+            }
+            function hideViewProjectModal() { viewProjectModal.classList.add('hidden'); document.body.classList.remove('overflow-hidden'); }
+
+            function showSubmitProposalModal(projectId) {
+                document.getElementById('proposalProjectId').value = projectId;
+                proposalForm.reset();
+                submitProposalModal.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
+            }
+            function hideSubmitProposalModal() { submitProposalModal.classList.add('hidden'); document.body.classList.remove('overflow-hidden'); }
+
+
+            async function loadProfileData() {
+                if (!auth || !auth.currentUser) {
+                    showNotification('error', 'Access Denied', 'You must be logged in.');
+                    showPage('homePage');
+                    return;
+                }
+                profileLoading?.classList.remove('hidden');
+                profileForm?.classList.add('hidden');
+                try {
+                    const user = auth.currentUser;
+                    const profileDocRef = doc(db, "users", user.uid);
+                    const docSnap = await getDoc(profileDocRef);
+
+                    const profileEmailEl = document.getElementById('profileEmail');
+                    const profileNameEl = document.getElementById('profileName');
+                    const profileEducationEl = document.getElementById('profileEducation');
+                    const profileSkillsEl = document.getElementById('profileSkills');
+                    const profileDescriptionEl = document.getElementById('profileDescription');
+                    const profileIsPublicCheckbox = document.getElementById('profileIsPublic');
+
+                    if (profileEmailEl) profileEmailEl.value = user.email || '';
+                    if (profileNameEl) profileNameEl.value = user.displayName || '';
+
+                    if (docSnap.exists()) {
+                        const profileData = docSnap.data();
+                        if (profileEducationEl) profileEducationEl.value = profileData.education || '';
+                        if (profileSkillsEl) profileSkillsEl.value = profileData.skills && Array.isArray(profileData.skills) ? profileData.skills.join(', ') : '';
+                        if (profileDescriptionEl) profileDescriptionEl.value = profileData.description || '';
+                        if (profileIsPublicCheckbox) profileIsPublicCheckbox.checked = profileData.isPublic || false;
+
+                        if (profileData.isFreelancer && makePublicContainer) makePublicContainer.classList.remove('hidden');
+                        else if (makePublicContainer) makePublicContainer.classList.add('hidden');
+                    } else {
+                        if (profileEducationEl) profileEducationEl.value = '';
+                        if (profileSkillsEl) profileSkillsEl.value = '';
+                        if (profileDescriptionEl) profileDescriptionEl.value = '';
+                        if (profileIsPublicCheckbox) profileIsPublicCheckbox.checked = false;
+                        if (makePublicContainer) makePublicContainer.classList.add('hidden');
+                        console.log("No profile document found for user:", user.uid);
+                    }
+                } catch (error) {
+                    console.error("Error loading profile:", error);
+                    showNotification('error', 'Load Failed', 'Could not load profile data.');
+                } finally {
+                    profileLoading?.classList.add('hidden');
+                    profileForm?.classList.remove('hidden');
+                }
+            }
+
+            async function getUserData(userId) {
+                if (!db || !userId) return { name: 'Unknown User', isFreelancer: false, uid: userId };
+                 try {
+                     const profileDocRef = doc(db, "users", userId);
+                     const docSnap = await getDoc(profileDocRef);
+                     if (docSnap.exists()) return { id: docSnap.id, ...docSnap.data() };
+                 } catch (error) { console.error("Error fetching user data for", userId, ":", error); }
+
+                 const authUser = auth ? auth.currentUser : null;
+                 if (authUser && authUser.uid === userId) {
+                    return { name: authUser.displayName || 'User', email: authUser.email, isFreelancer: false, uid: userId };
+                 }
+                 return { name: 'Unknown User', isFreelancer: false, uid: userId };
+            }
+
+            async function handleLogin(email, password) {
+                if (!auth) { showNotification('error', 'Auth Error', 'Authentication service not available.'); return; }
+                const btnText = document.getElementById('loginButtonText');
+                const btnSpinner = document.getElementById('loginButtonSpinner');
+                btnText.textContent = 'Logging in...'; btnSpinner.classList.remove('hidden');
+                try {
+                    await signInWithEmailAndPassword(auth, email, password);
+                    hideAuthModals();
+                    showNotification('success', 'Login Successful', 'Welcome back!');
+                    document.getElementById('loginForm').reset();
+                } catch (error) {
+                    console.error("Login error:", error.code, error.message);
+                    showNotification('error', 'Login Failed', error.message);
+                }
+                finally { btnText.textContent = 'Log In'; btnSpinner.classList.add('hidden'); }
+            }
+
+            async function handleSignup(name, email, password, isFreelancer) {
+                if (!auth || !db) { showNotification('error', 'Service Error', 'Required services not available.'); return; }
+                const btnText = document.getElementById('signupButtonText');
+                const btnSpinner = document.getElementById('signupButtonSpinner');
+                btnText.textContent = 'Creating account...'; btnSpinner.classList.remove('hidden');
+                try {
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    await updateProfile(userCredential.user, { displayName: name });
+                    await setDoc(doc(db, "users", userCredential.user.uid), {
+                        uid: userCredential.user.uid,
+                        email: userCredential.user.email,
+                        name: name,
+                        isFreelancer: isFreelancer,
+                        isPublic: false,
+                        createdAt: serverTimestamp(),
+                        education: '', skills: [], description: ''
+                    });
+                    hideAuthModals();
+                    showNotification('success', 'Account Created', 'Welcome to Experlance CG!');
+                    document.getElementById('signupForm').reset();
+                } catch (error) {
+                    console.error("Signup error:", error.code, error.message);
+                    showNotification('error', 'Signup Failed', error.message);
+                }
+                finally { btnText.textContent = 'Sign Up'; btnSpinner.classList.add('hidden'); }
+            }
+
+            async function handleLogout() {
+                if (!auth) { showNotification('error', 'Auth Error', 'Authentication service not available.'); return; }
+                try {
+                    await signOut(auth);
+                    showNotification('success', 'Logged Out', 'Successfully logged out.');
+                    showPage('homePage');
+                }
+                catch (error) {
+                    console.error("Logout error:", error);
+                    showNotification('error', 'Logout Failed', error.message);
+                }
+            }
+
+            async function updateAuthUI(user) {
+                if (user && auth) { // Check if auth is initialized
+                    const userData = await getUserData(user.uid);
+                    const displayName = user.displayName || userData.name || user.email;
+                    const userInitial = displayName ? displayName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0,2) : '?';
+                    const userRole = userData.isFreelancer ? 'Freelancer' : 'Client';
+
+                    authButtons.classList.add('hidden'); userMenu.classList.remove('hidden');
+                    document.getElementById('usernameDisplay').textContent = displayName;
+                    document.getElementById('dropdownUsername').textContent = displayName;
+                    document.getElementById('dropdownUserRole').textContent = userRole;
+                    document.getElementById('userInitial').textContent = userInitial;
+
+                    mobileAuthButtons.classList.add('hidden'); mobileUserMenu.classList.remove('hidden');
+                    document.getElementById('mobileUsernameDisplay').textContent = displayName;
+                    document.getElementById('mobileUserRole').textContent = userRole;
+                } else {
+                    authButtons.classList.remove('hidden'); userMenu.classList.add('hidden');
+                    userMenuDropdown.classList.remove('active');
+                    mobileAuthButtons.classList.remove('hidden'); mobileUserMenu.classList.add('hidden');
+                }
+            }
+
+            function toggleUserMenuDropdown() { userMenuDropdown.classList.toggle('active'); }
+
+            async function loadAndShowFreelancer(userId) {
+                showViewFreelancerModal();
+                const loadingEl = document.getElementById('viewFreelancerLoading');
+                const detailsEl = document.getElementById('viewFreelancerDetails');
+                try {
+                    const sampleUser = sampleTopFreelancers.find(f => f.id === userId);
+                    let freelancerData;
+                    if (sampleUser) {
+                        freelancerData = { ...sampleUser, isFreelancer: true };
+                    } else {
+                        freelancerData = await getUserData(userId);
+                    }
+
+                    if (!freelancerData || !freelancerData.isFreelancer) {
+                         throw new Error("Freelancer profile not found or user is not a freelancer.");
+                    }
+
+                    document.getElementById('viewFreelancerName').textContent = freelancerData.name || 'N/A';
+                    document.getElementById('viewFreelancerEmail').textContent = freelancerData.email || 'N/A';
+                    document.getElementById('viewFreelancerInitial').textContent = (freelancerData.name ? freelancerData.name.split(' ').map(n=>n[0]).join('') : '?').toUpperCase().substring(0,2);
+                    document.getElementById('viewFreelancerEducationSection').innerHTML = freelancerData.education ? `<div><h4 class="font-semibold text-gray-800">Education</h4><p class="text-gray-600">${freelancerData.education}</p></div>` : '';
+
+                    let skillsHtml = '';
+                    if (freelancerData.skills) {
+                        const skillsArray = Array.isArray(freelancerData.skills)
+                            ? freelancerData.skills
+                            : String(freelancerData.skills).split(/[,/]/).map(s => s.trim()).filter(s => s);
+
+                        if (skillsArray.length > 0) {
+                             skillsHtml = `<div><h4 class="font-semibold text-gray-800">Skills</h4><div class="flex flex-wrap gap-2 mt-1">${skillsArray.map(skill => `<span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded skill-badge">${skill}</span>`).join('')}</div></div>`;
+                        }
+                    }
+                    document.getElementById('viewFreelancerSkillsSection').innerHTML = skillsHtml || '<div><h4 class="font-semibold text-gray-800">Skills</h4><p class="text-gray-600">No skills listed.</p></div>';
+                    const description = freelancerData.description || freelancerData.bio;
+                    document.getElementById('viewFreelancerDescriptionSection').innerHTML = description ? `<div><h4 class="font-semibold text-gray-800">About</h4><p class="text-gray-600 whitespace-pre-wrap">${description}</p></div>` : '<div><h4 class="font-semibold text-gray-800">About</h4><p class="text-gray-600">No description provided.</p></div>';
+
+                    loadingEl.classList.add('hidden'); detailsEl.classList.remove('hidden');
+                } catch (error) {
+                    console.error("Error loading freelancer profile:", error);
+                    loadingEl.innerHTML = `<p class="text-red-500">Could not load profile: ${error.message}</p>`;
+                }
+            }
+
+            async function loadAndShowProjectDetails(projectId) {
+                showViewProjectModal();
+                const loadingEl = document.getElementById('viewProjectLoading');
+                const detailsEl = document.getElementById('viewProjectDetails');
+                const submitProposalBtnEl = document.getElementById('submitProposalBtn');
+                submitProposalBtnEl.classList.add('hidden');
+
+                if (!db) {
+                    loadingEl.innerHTML = `<p class="text-red-500">Database not available.</p>`;
+                    return;
+                }
+
+                try {
+                    const projectDocRef = doc(db, "projects", projectId);
+                    const projectSnap = await getDoc(projectDocRef);
+
+                    if (!projectSnap.exists()) throw new Error("Project not found.");
+                    const project = { id: projectSnap.id, ...projectSnap.data() };
+
+                    document.getElementById('viewProjectTitle').textContent = project.title;
+                    document.getElementById('viewProjectClient').textContent = `By: ${project.clientName || 'Unknown Client'}`;
+                    document.getElementById('viewProjectDate').textContent = `Posted: ${project.postedAt && project.postedAt.toDate ? project.postedAt.toDate().toLocaleDateString() : 'N/A'}`;
+                    document.getElementById('viewProjectBudget').textContent = `₹${project.budget ? project.budget.toLocaleString() : 'N/A'}`;
+                    document.getElementById('viewProjectDescription').textContent = project.description;
+                    const skillsContainer = document.getElementById('viewProjectSkills');
+                    skillsContainer.innerHTML = project.skills && Array.isArray(project.skills) ? project.skills.map(skill => `<span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded skill-badge">${skill}</span>`).join('') : 'No skills listed.';
+                    document.getElementById('viewProjectCategorySection').innerHTML = project.category ? `<div><h4 class="font-semibold text-gray-800">Category</h4><p class="text-gray-600">${project.category.charAt(0).toUpperCase() + project.category.slice(1)}</p></div>` : '';
+                    document.getElementById('viewProjectDeadlineSection').innerHTML = project.deadline ? `<div><h4 class="font-semibold text-gray-800">Deadline</h4><p class="text-gray-600">${new Date(project.deadline).toLocaleDateString()}</p></div>` : '';
+
+                    if (auth && auth.currentUser) {
+                        const userData = await getUserData(auth.currentUser.uid);
+                        if (userData.isFreelancer && auth.currentUser.uid !== project.clientId) {
+                            submitProposalBtnEl.classList.remove('hidden');
+                            submitProposalBtnEl.onclick = () => showSubmitProposalModal(project.id);
+                        }
+                    }
+                    loadingEl.classList.add('hidden'); detailsEl.classList.remove('hidden');
+                } catch (error) {
+                    console.error("Error loading project details:", error);
+                    loadingEl.innerHTML = `<p class="text-red-500">Could not load project: ${error.message}</p>`;
+                }
+            }
+
+            async function handleProjectFormSubmit(e) {
+                e.preventDefault();
+                if (!auth || !auth.currentUser) { showNotification('error', 'Login Required', 'Please log in to post a project.'); showLoginModal(); return; }
+                if (!db) { showNotification('error', 'DB Error', 'Database service not available.'); return; }
+
+                const btnText = document.getElementById('submitButtonText');
+                const btnSpinner = document.getElementById('submitButtonSpinner');
+                btnText.textContent = 'Posting...'; btnSpinner.classList.remove('hidden');
+
+                try {
+                    await addDoc(collection(db, "projects"), {
+                        title: document.getElementById('projectTitle').value,
+                        description: document.getElementById('projectDescription').value,
+                        budget: parseInt(document.getElementById('projectBudget').value),
+                        skills: document.getElementById('projectSkills').value.split(',').map(s => s.trim()).filter(s => s),
+                        category: document.getElementById('projectCategory').value,
+                        deadline: document.getElementById('projectDeadline').value || null,
+                        clientId: auth.currentUser.uid,
+                        clientName: auth.currentUser.displayName || auth.currentUser.email,
+                        postedAt: serverTimestamp(),
+                        status: 'open',
+                        proposalsCount: 0
+                    });
+                    showNotification('success', 'Project Posted', 'Your project is now live!');
+                    document.getElementById('projectForm').reset();
+                    await populateProjects();
+                    showPage('projectsPage');
+                } catch (error) { console.error("Error posting project:", error); showNotification('error', 'Post Failed', 'Could not post project. ' + error.message); }
+                finally { btnText.textContent = 'Post Project'; btnSpinner.classList.add('hidden'); }
+            }
+
+            async function handleProfileFormSubmit(e) {
+                e.preventDefault();
+                if (!auth || !auth.currentUser) { showNotification('error', 'Error', 'You must be logged in.'); return; }
+                if (!db) { showNotification('error', 'DB Error', 'Database service not available.'); return; }
+
+                const btnText = document.getElementById('saveProfileButtonText');
+                const btnSpinner = document.getElementById('saveProfileButtonSpinner');
+                btnText.textContent = 'Saving...'; btnSpinner.classList.remove('hidden');
+
+                const user = auth.currentUser;
+                const profileName = document.getElementById('profileName').value;
+                const profileData = {
+                    name: profileName,
+                    isPublic: document.getElementById('profileIsPublic').checked,
+                    education: document.getElementById('profileEducation').value || '',
+                    skills: document.getElementById('profileSkills').value.split(',').map(s => s.trim()).filter(s => s),
+                    description: document.getElementById('profileDescription').value || '',
+                    updatedAt: serverTimestamp()
+                };
+
+                try {
+                    await setDoc(doc(db, "users", user.uid), profileData, { merge: true });
+                    if (user.displayName !== profileName) await updateProfile(user, { displayName: profileName });
+                    showNotification('success', 'Profile Updated', 'Your profile has been saved.');
+                    await updateAuthUI(auth.currentUser);
+                    if (profileData.isPublic) await populateBrowseFreelancers();
+                } catch (error) { console.error("Error saving profile:", error); showNotification('error', 'Save Failed', 'Could not save profile. ' + error.message); }
+                finally { btnText.textContent = 'Save Profile'; btnSpinner.classList.add('hidden'); }
+            }
+
+            async function handleProposalFormSubmit(e) {
+                e.preventDefault();
+                if (!auth || !auth.currentUser) { showNotification('error', 'Login Required', 'Please log in to submit a proposal.'); hideSubmitProposalModal(); showLoginModal(); return; }
+                if (!db) { showNotification('error', 'DB Error', 'Database service not available.'); return; }
+
+                const btnText = document.getElementById('submitProposalFormBtnText');
+                const btnSpinner = document.getElementById('submitProposalFormSpinner');
+                btnText.textContent = 'Submitting...'; btnSpinner.classList.remove('hidden');
+
+                const projectId = document.getElementById('proposalProjectId').value;
+                const userData = await getUserData(auth.currentUser.uid);
+
+                if (!userData.isFreelancer) {
+                    showNotification('error', 'Action Not Allowed', 'Only freelancers can submit proposals.');
+                    btnText.textContent = 'Submit Proposal'; btnSpinner.classList.add('hidden');
+                    return;
+                }
+
+                try {
+                    await addDoc(collection(db, "proposals"), {
+                        projectId: projectId,
+                        freelancerId: auth.currentUser.uid,
+                        freelancerName: userData.name || auth.currentUser.email,
+                        coverLetter: document.getElementById('proposalCoverLetter').value,
+                        bidAmount: parseInt(document.getElementById('proposalBidAmount').value),
+                        deliveryTime: document.getElementById('proposalDeliveryTime').value,
+                        submittedAt: serverTimestamp(),
+                        status: 'pending'
+                    });
+                    showNotification('success', 'Proposal Submitted', 'Your proposal has been sent.');
+                    hideSubmitProposalModal();
+                } catch (error) { console.error("Error submitting proposal:", error); showNotification('error', 'Submission Failed', 'Could not submit proposal. ' + error.message); }
+                finally { btnText.textContent = 'Submit Proposal'; btnSpinner.classList.add('hidden'); }
+            }
+
+            async function loadDashboardData() {
+                if (!auth || !auth.currentUser) { showPage('homePage'); return; }
+                if (!db) {
+                    dashboardLoading.classList.remove('hidden');
+                    dashboardContent.classList.add('hidden');
+                    clientDashboard.classList.add('hidden');
+                    freelancerDashboard.classList.add('hidden');
+                    dashboardLoading.innerHTML = '<p class="text-red-500">Database service not available.</p>';
+                    return;
+                }
+
+
+                dashboardLoading.classList.remove('hidden');
+                dashboardContent.classList.add('hidden');
+                clientDashboard.classList.add('hidden');
+                freelancerDashboard.classList.add('hidden');
+
+                try {
+                    const userData = await getUserData(auth.currentUser.uid);
+
+                    if (userData.isFreelancer) {
+                        freelancerDashboard.classList.remove('hidden');
+                        const proposalsQuery = query(collection(db, "proposals"), where("freelancerId", "==", auth.currentUser.uid), orderBy("submittedAt", "desc"));
+                        const proposalsSnap = await getDocs(proposalsQuery);
+                        const proposalsListEl = document.getElementById('freelancerSubmittedProposals');
+                        proposalsListEl.innerHTML = '';
+                        if (proposalsSnap.empty) {
+                            proposalsListEl.innerHTML = '<p class="text-gray-500">You haven\'t submitted any proposals yet.</p>';
+                        } else {
+                            proposalsSnap.forEach(doc => {
+                                const proposal = {id: doc.id, ...doc.data()};
+                                proposalsListEl.innerHTML += `<div class="bg-gray-50 p-3 rounded-lg shadow-sm">Proposal for Project ID: ${proposal.projectId} - Bid: ₹${proposal.bidAmount} - Status: ${proposal.status}</div>`;
+                            });
+                        }
+                        document.getElementById('freelancerAwardedProjects').innerHTML = '<p class="text-gray-500">Awarded projects feature coming soon.</p>';
+
+                    } else {
+                        clientDashboard.classList.remove('hidden');
+                        const projectsQuery = query(collection(db, "projects"), where("clientId", "==", auth.currentUser.uid), orderBy("postedAt", "desc"));
+                        const projectsSnap = await getDocs(projectsQuery);
+                        const projectsListEl = document.getElementById('clientPostedProjects');
+                        projectsListEl.innerHTML = '';
+                        if (projectsSnap.empty) {
+                            projectsListEl.innerHTML = '<p class="text-gray-500">You haven\'t posted any projects yet.</p>';
+                        } else {
+                            projectsSnap.forEach(doc => {
+                                const project = {id: doc.id, ...doc.data()};
+                                projectsListEl.innerHTML += `<div class="bg-gray-50 p-3 rounded-lg shadow-sm">Project: ${project.title} - Budget: ₹${project.budget} - Status: ${project.status}</div>`;
+                            });
+                        }
+                         document.getElementById('clientProposalsReceived').innerHTML = '<p class="text-gray-500">Proposals received feature coming soon.</p>';
+                    }
+                } catch (error) {
+                    console.error("Error loading dashboard data:", error);
+                    showNotification('error', 'Dashboard Error', 'Could not load dashboard data.');
+                    const dashboardArea = document.getElementById( (await getUserData(auth.currentUser.uid)).isFreelancer ? 'freelancerDashboard' : 'clientDashboard');
+                    if(dashboardArea) dashboardArea.innerHTML = '<p class="text-red-500">Could not load dashboard content.</p>';
+                } finally {
+                    dashboardLoading.classList.add('hidden');
+                    dashboardContent.classList.remove('hidden');
+                }
+            }
+
+
+            // --- Event Listeners ---
+            mobileMenuButton.addEventListener('click', toggleMobileMenu);
+            closeMobileMenu.addEventListener('click', toggleMobileMenu);
+            mobileMenuOverlay.addEventListener('click', toggleMobileMenu);
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href').substring(1);
+                    if (mobileMenu.classList.contains('open')) toggleMobileMenu();
+                    showPage(targetId);
+                });
+            });
+
+            loginBtn.addEventListener('click', showLoginModal);
+            signupBtn.addEventListener('click', showSignupModal);
+            mobileLoginBtn.addEventListener('click', showLoginModal);
+            mobileSignupBtn.addEventListener('click', showSignupModal);
+
+            closeLoginModal.addEventListener('click', hideAuthModals);
+            closeSignupModal.addEventListener('click', hideAuthModals);
+            showSignup.addEventListener('click', (e) => { e.preventDefault(); showSignupModal(); });
+            showLogin.addEventListener('click', (e) => { e.preventDefault(); showLoginModal(); });
+
+            logoutBtn.addEventListener('click', handleLogout);
+            mobileLogoutBtn.addEventListener('click', handleLogout);
+
+            userMenuTrigger.addEventListener('click', toggleUserMenuDropdown);
+            document.addEventListener('click', function(e) {
+                if (!userMenu || userMenu.classList.contains('hidden')) return;
+                if (!userMenuTrigger.contains(e.target) && !userMenuDropdown.contains(e.target)) {
+                    userMenuDropdown.classList.remove('active');
+                }
+            });
+
+            hireFreelancerBtn.addEventListener('click', () => {
+                if (auth && auth.currentUser) showPage('browseFreelancersPage');
+                else { showLoginModal(); showNotification('info', 'Login Required', 'Please log in to hire.'); }
+            });
+            findWorkBtn.addEventListener('click', () => {
+                if (auth && auth.currentUser) showPage('projectsPage');
+                else { showLoginModal(); showNotification('info', 'Login Required', 'Please log in to find work.'); }
+            });
+
+            if (projectForm) projectForm.addEventListener('submit', handleProjectFormSubmit);
+            if (profileForm) profileForm.addEventListener('submit', handleProfileFormSubmit);
+            if (proposalForm) proposalForm.addEventListener('submit', handleProposalFormSubmit);
+
+
+            document.getElementById('projectFilter')?.addEventListener('change', function() { populateProjects(this.value); });
+            document.getElementById('freelancerFilter')?.addEventListener('change', function() { populateTopFreelancers(this.value); });
+            document.getElementById('browseFreelancerFilter')?.addEventListener('change', function() { populateBrowseFreelancers(this.value); });
+
+            document.getElementById('loadMoreProjects')?.addEventListener('click', () => showNotification('info', 'Coming Soon', 'Load more projects feature is under development.'));
+            document.getElementById('loadMoreFreelancers')?.addEventListener('click', () => showNotification('info', 'Coming Soon', 'Load more top freelancers feature is under development.'));
+            document.getElementById('loadMoreBrowseFreelancers')?.addEventListener('click', () => showNotification('info', 'Coming Soon', 'Load more freelancers feature is under development.'));
+
+            closeNotification.addEventListener('click', hideNotification);
+            closeViewFreelancerModal.addEventListener('click', hideViewFreelancerModal);
+            viewFreelancerModal.addEventListener('click', (e) => { if (e.target === viewFreelancerModal) hideViewFreelancerModal(); });
+            closeViewProjectModal.addEventListener('click', hideViewProjectModal);
+            viewProjectModal.addEventListener('click', (e) => { if (e.target === viewProjectModal) hideViewProjectModal(); });
+            closeSubmitProposalModal.addEventListener('click', hideSubmitProposalModal);
+            submitProposalModal.addEventListener('click', (e) => { if (e.target === submitProposalModal) hideSubmitProposalModal(); });
+
+
+            document.querySelector('main').addEventListener('click', (e) => {
+                if (e.target.matches('.view-profile-btn') || e.target.closest('.view-profile-btn')) {
+                    const userId = e.target.closest('.view-profile-btn').dataset.userid;
+                    if (userId) loadAndShowFreelancer(userId);
+                }
+                if (e.target.matches('.view-project-btn') || e.target.closest('.view-project-btn')) {
+                    const projectId = e.target.closest('.view-project-btn').dataset.projectid;
+                    if (projectId) loadAndShowProjectDetails(projectId);
+                }
+            });
+
+            if (auth) { // Only set up listener if auth initialized correctly
+                onAuthStateChanged(auth, async (user) => {
+                    console.log("Auth state changed. User:", user ? user.uid : null);
+                    await updateAuthUI(user);
+                    const currentHash = window.location.hash.substring(1);
+                    const protectedPages = ['postProjectPage', 'profilePage', 'dashboard'];
+
+                    if (!user && protectedPages.includes(currentHash)) {
+                        showPage('homePage');
+                    } else if (user) {
+                        if (currentHash === 'profilePage') await loadProfileData();
+                        else if (currentHash === 'dashboard') await loadDashboardData();
+                    }
+                });
+            } else {
+                // Handle case where auth did not initialize - maybe show limited functionality
+                console.warn("Firebase Auth not initialized. Auth features will be disabled.");
+                updateAuthUI(null); // Ensure UI reflects logged-out state
+            }
+
+
+            const initialHash = window.location.hash.substring(1);
+            let pageToShow = 'homePage';
+            if (initialHash && document.getElementById(initialHash)) {
+                 pageToShow = initialHash;
+            }
+            showPage(pageToShow);
+
+
+        }); // End DOMContentLoaded
+
+        window.toggleFAQ = function(index) {
+            const content = document.getElementById(`faqContent${index}`);
+            const icon = document.getElementById(`faqIcon${index}`);
+            if (!content || !icon) return;
+            content.classList.toggle('hidden');
+            icon.classList.toggle('transform');
+            icon.classList.toggle('rotate-180');
+        }
+    </script>
+</body>
+</html>
+              
